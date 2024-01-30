@@ -3,6 +3,7 @@ import GetIssuesQuery from '../models/GetIssuesQuery';
 
 export default function IssuesTable({ issues } : { issues: { [key:string] : GetIssuesQuery } }) {
   const [issuesEntries, setIssuesEntries] = useState(issues);
+  const [selectAll, setSelectAll] = useState(false);
 
   function handleIssueClick(key: string) {
     setIssuesEntries((prev) => {
@@ -19,6 +20,23 @@ export default function IssuesTable({ issues } : { issues: { [key:string] : GetI
     });
   }
 
+  function handleSelectAll() {
+    const nextIsSelectAll = !selectAll;
+    setIssuesEntries((prev) => {
+      for(const key of Object.keys(prev)) {
+        const issue = prev[key];
+        if(!issue.IsResolved) {
+          issue.IsSelected = nextIsSelectAll;
+        }
+      }
+      
+      return {
+        ...prev
+      }
+    });
+    setSelectAll(nextIsSelectAll);
+  }
+
   return (
     <div>
       <h2>IssuesTable</h2>
@@ -27,7 +45,7 @@ export default function IssuesTable({ issues } : { issues: { [key:string] : GetI
         <thead>
           <tr>
             <th>
-              <input type="checkbox" name="select-all" />
+              <input type="checkbox" name="select-all" checked={selectAll} onChange={handleSelectAll} />
             </th>
             <th>Name</th>
             <th>Message</th>
