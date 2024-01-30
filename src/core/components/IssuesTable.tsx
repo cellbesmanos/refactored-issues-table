@@ -1,9 +1,15 @@
-import { useState } from 'react'
+import {  useEffect, useState } from 'react'
 import GetIssuesQuery from '../models/GetIssuesQuery';
 
 export default function IssuesTable({ issues } : { issues: { [key:string] : GetIssuesQuery } }) {
   const [issuesEntries, setIssuesEntries] = useState(issues);
-  const [selectAll, setSelectAll] = useState(false);
+  const [isSelectAll, setIsSelectAll] = useState(false);
+
+  let totalSelectedIssues = getTotalSelectIssues();
+  
+  useEffect(() => {
+    totalSelectedIssues = getTotalSelectIssues();
+  }, [issuesEntries]);
 
   function handleIssueClick(key: string) {
     setIssuesEntries((prev) => {
@@ -21,7 +27,7 @@ export default function IssuesTable({ issues } : { issues: { [key:string] : GetI
   }
 
   function handleSelectAll() {
-    const nextIsSelectAll = !selectAll;
+    const nextIsSelectAll = !isSelectAll;
     setIssuesEntries((prev) => {
       for(const key of Object.keys(prev)) {
         const issue = prev[key];
@@ -34,7 +40,14 @@ export default function IssuesTable({ issues } : { issues: { [key:string] : GetI
         ...prev
       }
     });
-    setSelectAll(nextIsSelectAll);
+
+    setIsSelectAll(nextIsSelectAll);
+  }
+
+  function getTotalSelectIssues() : number {
+    return Object.values(issuesEntries)
+    .filter(issue => issue.IsSelected && !issue.IsResolved)
+    .length;
   }
 
   return (
@@ -45,8 +58,15 @@ export default function IssuesTable({ issues } : { issues: { [key:string] : GetI
         <thead>
           <tr>
             <th>
-              <input type="checkbox" name="select-all" checked={selectAll} onChange={handleSelectAll} />
+              <input type="checkbox" name="select-all" checked={isSelectAll} onChange={handleSelectAll} />
             </th>
+            <th>{totalSelectedIssues <= 0 ? "None Selected" : `${totalSelectedIssues} Selected`}</th>
+            <th></th>
+            <th></th>
+          </tr>
+
+          <tr>
+            <th></th>
             <th>Name</th>
             <th>Message</th>
             <th>Status</th>
