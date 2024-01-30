@@ -7,6 +7,10 @@ export default function IssuesTable({ issues } : { issues: { [key:string] : GetI
   function handleIssueClick(key: string) {
     setIssuesEntries((prev) => {
       const ie = prev[key];
+      if(ie == null || ie.IsResolved) {
+        return prev;
+      } 
+
       ie.IsSelected = !ie.IsSelected;
       
       return {
@@ -35,6 +39,9 @@ export default function IssuesTable({ issues } : { issues: { [key:string] : GetI
           {
             Object.keys(issuesEntries).map(key => {
               const ie = issuesEntries[key];
+              if(ie == null) {
+                return;
+              }
 
               return (
                 <tr key={ie.Id} style={{color: ie.IsSelected ? "green" : "black"}} onClick={() => handleIssueClick(key)}>
